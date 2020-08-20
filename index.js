@@ -1,11 +1,14 @@
 const grid = document.querySelector(".grid");
 const startButton = document.getElementById("start");
-const score = document.getElementById("score");
+const scoreDisplay = document.getElementById("score");
 let squares = [];
 let currentSnake = [2, 1, 0];
 let direction = 1;
 const width = 10;
 let appleIndex = 0;
+let score = 0;
+let intervalTime = 1000;
+let speed = 0.9;
 
 function createGrid() {
   for (let i = 0; i < width * width; i++) {
@@ -42,24 +45,45 @@ function move() {
   squares[tail].classList.remove("snake");
   // add square in direction snake is heading
   currentSnake.unshift(currentSnake[0] + direction);
+
+  // deal with snake's head getting the apple
+  if (squares[currentSnake[0]].classList.contains("apple")) {
+    // remove the apple (class)
+    squares[appleIndex].classList.remove("apple");
+    // grow snake by one with a class
+    squares[tail].classList.add("snake");
+    // grow snake array by 1
+    currentSnake.push(tail);
+    // generate new apple
+    generateApple();
+    // add 1 to the score
+    score++;
+    // display score
+    scoreDisplay.textContent = score;
+    // speed up our snake
+    clearInterval(timerId);
+    intervalTime = intervalTime * speed;
+    timerId = setInterval(move, intervalTime);
+  }
+
   // add styling to see it
   squares[currentSnake[0]].classList.add("snake");
 }
 
 move();
 
-let timerId = setInterval(move, 1000);
+let timerId = setInterval(move, intervalTime);
 // clearInterval(timerId);
 
 // Let's generate random apples!
-function generateApples() {
+function generateApple() {
   do {
     // generate a random number
     appleIndex = Math.floor(Math.random() * squares.length);
   } while (squares[appleIndex].classList.contains("snake"));
   squares[appleIndex].classList.add("apple");
 }
-generateApples();
+generateApple();
 
 // - Keycodes
 // - - 39 / Right Arrow
